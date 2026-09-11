@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'welcome_page.dart';
 import 'jadwal_saya_page.dart';
+import 'program_kursus_saya_page.dart';
 
 class PesertaDashboardPage extends StatelessWidget {
   final String username;
@@ -60,7 +61,11 @@ class PesertaDashboardPage extends StatelessWidget {
                             ),
                           ),
                           TextButton(
-                            onPressed: () => _showComingSoon(context, 'lihat semua kursus'),
+                            onPressed: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(builder: (_) => const ProgramKursusSayaPage()),
+                              );
+                            },
                             style: TextButton.styleFrom(padding: EdgeInsets.zero),
                             child: const Text(
                               'Lihat semua',
@@ -289,6 +294,10 @@ class PesertaDashboardPage extends StatelessWidget {
             if (label == 'Jadwal Saya') {
               Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const JadwalSayaPage()),
+              );
+            } else if (label == 'Program Kursus') {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const ProgramKursusSayaPage()),
               );
             } else {
               _showComingSoon(context, label);
