@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../widgets/crud_page.dart';
+import '../models/jadwal_kursus_item.dart';
+import 'jadwal_kategori_detail_page.dart';
 
 class JadwalPage extends StatelessWidget {
   const JadwalPage({super.key});
@@ -34,15 +35,20 @@ class JadwalPage extends StatelessWidget {
       icon: Icons.computer_outlined,
       color: const Color(0xFF0D9488),
       bgColor: const Color(0xFFCCFBF1),
-      initialData: const [
-        {
-          'namaKelas': 'Kelas Jaringan Dasar',
-          'tanggal': '15/08/2026',
-          'jam': '08.00 - 10.00',
-          'instruktur': 'Budi Santoso',
-          'peserta': 'Andi Pratama',
-          'status': 'Terjadwal',
-        },
+      initialData: [
+        JadwalKursusItem(
+          namaKelas: 'YUSUF',
+          jam: '09.00-10.30',
+          instruktur: 'YUSUF',
+          peserta: 'DZAKWAN',
+          sesiList: List.generate(20, (i) {
+            final tanggal = DateTime(2026, 8, 27).add(Duration(days: 2 * i));
+            return SesiPertemuan(
+              tanggal: tanggal,
+              selesai: i == 0,
+            ); // sesi pertama contoh sudah selesai
+          }),
+        ),
       ],
     ),
     _KategoriJadwal(
@@ -73,7 +79,11 @@ class JadwalPage extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20),
                   child: const Padding(
                     padding: EdgeInsets.all(8),
-                    child: Icon(Icons.arrow_back_rounded, color: Colors.white, size: 22),
+                    child: Icon(
+                      Icons.arrow_back_rounded,
+                      color: Colors.white,
+                      size: 22,
+                    ),
                   ),
                 ),
                 const Expanded(
@@ -84,7 +94,11 @@ class JadwalPage extends StatelessWidget {
                       children: [
                         Text(
                           'Jadwal',
-                          style: TextStyle(color: Colors.white, fontSize: 21, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 21,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         SizedBox(height: 3),
                         Text(
@@ -124,49 +138,10 @@ class JadwalPage extends StatelessWidget {
                           onTap: () {
                             Navigator.of(context).push(
                               MaterialPageRoute(
-                                builder: (_) => CrudPage(
-                                  title: kategori.nama,
-                                  subtitle: 'Kelola jadwal & peserta ${kategori.nama}',
-                                  titleIcon: kategori.icon,
-                                  themeColor: kategori.color,
-                                  primaryFieldKey: 'namaKelas',
-                                  secondaryFieldKey: 'tanggal',
-                                  fields: const [
-                                    CrudField(
-                                      key: 'namaKelas',
-                                      label: 'Nama Kelas/Jadwal',
-                                      icon: Icons.class_outlined,
-                                    ),
-                                    CrudField(
-                                      key: 'tanggal',
-                                      label: 'Tanggal (contoh: 15/08/2026)',
-                                      icon: Icons.calendar_today_outlined,
-                                    ),
-                                    CrudField(
-                                      key: 'jam',
-                                      label: 'Jam (contoh: 08.00 - 10.00)',
-                                      icon: Icons.access_time_outlined,
-                                    ),
-                                    CrudField(
-                                      key: 'instruktur',
-                                      label: 'Instruktur',
-                                      icon: Icons.school_outlined,
-                                    ),
-                                    CrudField(
-                                      key: 'peserta',
-                                      label: 'Peserta (pisahkan dengan koma)',
-                                      icon: Icons.people_alt_outlined,
-                                      keyboardType: TextInputType.multiline,
-                                      required: false,
-                                    ),
-                                    CrudField(
-                                      key: 'status',
-                                      label: 'Status',
-                                      icon: Icons.flag_outlined,
-                                      type: CrudFieldType.dropdown,
-                                      options: ['Terjadwal', 'Selesai'],
-                                    ),
-                                  ],
+                                builder: (_) => JadwalKategoriDetailPage(
+                                  nama: kategori.nama,
+                                  icon: kategori.icon,
+                                  color: kategori.color,
                                   initialData: kategori.initialData,
                                 ),
                               ),
@@ -183,12 +158,17 @@ class JadwalPage extends StatelessWidget {
                                     color: kategori.bgColor,
                                     borderRadius: BorderRadius.circular(14),
                                   ),
-                                  child: Icon(kategori.icon, color: kategori.color, size: 24),
+                                  child: Icon(
+                                    kategori.icon,
+                                    color: kategori.color,
+                                    size: 24,
+                                  ),
                                 ),
                                 const SizedBox(width: 14),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         kategori.nama,
@@ -200,13 +180,19 @@ class JadwalPage extends StatelessWidget {
                                       ),
                                       const SizedBox(height: 2),
                                       Text(
-                                        '${kategori.initialData.length} jadwal aktif',
-                                        style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                                        '${kategori.initialData.length} kelas terjadwal',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey.shade600,
+                                        ),
                                       ),
                                     ],
                                   ),
                                 ),
-                                Icon(Icons.chevron_right_rounded, color: Colors.grey.shade400),
+                                Icon(
+                                  Icons.chevron_right_rounded,
+                                  color: Colors.grey.shade400,
+                                ),
                               ],
                             ),
                           ),
@@ -229,7 +215,7 @@ class _KategoriJadwal {
   final IconData icon;
   final Color color;
   final Color bgColor;
-  final List<Map<String, dynamic>> initialData;
+  final List<JadwalKursusItem> initialData;
 
   const _KategoriJadwal({
     required this.nama,

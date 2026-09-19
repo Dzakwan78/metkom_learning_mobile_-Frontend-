@@ -115,8 +115,10 @@ class _CrudPageState extends State<CrudPage> {
     var list = _items.where((item) {
       if (_searchQuery.isEmpty) return true;
       final query = _searchQuery.toLowerCase();
-      final primary = (item[widget.primaryFieldKey] as String? ?? '').toLowerCase();
-      final secondary = (item[widget.secondaryFieldKey] as String? ?? '').toLowerCase();
+      final primary = (item[widget.primaryFieldKey] as String? ?? '')
+          .toLowerCase();
+      final secondary = (item[widget.secondaryFieldKey] as String? ?? '')
+          .toLowerCase();
       return primary.contains(query) || secondary.contains(query);
     }).toList();
 
@@ -124,7 +126,9 @@ class _CrudPageState extends State<CrudPage> {
       list.sort((a, b) {
         final cmp = (a[widget.primaryFieldKey] as String? ?? '')
             .toLowerCase()
-            .compareTo((b[widget.primaryFieldKey] as String? ?? '').toLowerCase());
+            .compareTo(
+              (b[widget.primaryFieldKey] as String? ?? '').toLowerCase(),
+            );
         return _sortAscending! ? cmp : -cmp;
       });
     }
@@ -157,7 +161,10 @@ class _CrudPageState extends State<CrudPage> {
                 children: [
                   Icon(Icons.filter_list_rounded, color: widget.themeColor),
                   const SizedBox(width: 10),
-                  const Text('Urutkan', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                  const Text(
+                    'Urutkan',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                  ),
                 ],
               ),
             ),
@@ -204,7 +211,9 @@ class _CrudPageState extends State<CrudPage> {
     return ListTile(
       onTap: onTap,
       leading: Icon(
-        selected ? Icons.radio_button_checked_rounded : Icons.radio_button_off_rounded,
+        selected
+            ? Icons.radio_button_checked_rounded
+            : Icons.radio_button_off_rounded,
         color: selected ? widget.themeColor : Colors.grey.shade400,
       ),
       title: Text(label),
@@ -213,26 +222,39 @@ class _CrudPageState extends State<CrudPage> {
 
   void _openForm({Map<String, dynamic>? existing, int? index}) {
     final formKey = GlobalKey<FormState>();
-    final textFields =
-        widget.fields.where((f) => f.type != CrudFieldType.photo && f.type != CrudFieldType.file);
-    final photoFields = widget.fields.where((f) => f.type == CrudFieldType.photo);
+    final textFields = widget.fields.where(
+      (f) => f.type != CrudFieldType.photo && f.type != CrudFieldType.file,
+    );
+    final photoFields = widget.fields.where(
+      (f) => f.type == CrudFieldType.photo,
+    );
     final fileFields = widget.fields.where((f) => f.type == CrudFieldType.file);
 
     final controllers = {
       for (final field in textFields)
-        field.key: TextEditingController(text: existing?[field.key] as String? ?? ''),
+        field.key: TextEditingController(
+          text: existing?[field.key] as String? ?? '',
+        ),
     };
     final dropdownValues = {
-      for (final field in textFields.where((f) => f.type == CrudFieldType.dropdown))
-        field.key: (existing?[field.key] as String?)?.isNotEmpty == true ? existing![field.key] as String? : null,
+      for (final field in textFields.where(
+        (f) => f.type == CrudFieldType.dropdown,
+      ))
+        field.key: (existing?[field.key] as String?)?.isNotEmpty == true
+            ? existing![field.key] as String?
+            : null,
     };
     final photoBytes = <String, Uint8List?>{
       for (final field in photoFields)
-        field.key: (existing?[field.key] is Uint8List) ? existing![field.key] as Uint8List : null,
+        field.key: (existing?[field.key] is Uint8List)
+            ? existing![field.key] as Uint8List
+            : null,
     };
     final fileData = <String, Map<String, dynamic>?>{
       for (final field in fileFields)
-        field.key: (existing?[field.key] is Map) ? Map<String, dynamic>.from(existing![field.key] as Map) : null,
+        field.key: (existing?[field.key] is Map)
+            ? Map<String, dynamic>.from(existing![field.key] as Map)
+            : null,
     };
 
     showModalBottomSheet(
@@ -282,11 +304,17 @@ class _CrudPageState extends State<CrudPage> {
                                 color: widget.themeColor.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(14),
                               ),
-                              child: Icon(widget.titleIcon, color: widget.themeColor, size: 22),
+                              child: Icon(
+                                widget.titleIcon,
+                                color: widget.themeColor,
+                                size: 22,
+                              ),
                             ),
                             const SizedBox(width: 12),
                             Text(
-                              existing == null ? 'Tambah ${widget.title}' : 'Edit ${widget.title}',
+                              existing == null
+                                  ? 'Tambah ${widget.title}'
+                                  : 'Edit ${widget.title}',
                               style: const TextStyle(
                                 fontSize: 17,
                                 fontWeight: FontWeight.bold,
@@ -298,148 +326,193 @@ class _CrudPageState extends State<CrudPage> {
                         const SizedBox(height: 22),
 
                         // ==== Field foto (kalau ada), ditaruh paling atas & di tengah ====
-                        ...photoFields.map((field) => Center(
-                              child: Padding(
-                                padding: const EdgeInsets.only(bottom: 18),
-                                child: GestureDetector(
-                                  onTap: () async {
-                                    final picker = ImagePicker();
-                                    final picked = await picker.pickImage(
-                                      source: ImageSource.gallery,
-                                      imageQuality: 75,
-                                    );
-                                    if (picked == null) return;
-                                    final bytes = await picked.readAsBytes();
-                                    setSheetState(() => photoBytes[field.key] = bytes);
-                                  },
-                                  child: Stack(
-                                    children: [
-                                      Container(
-                                        width: 88,
-                                        height: 88,
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xFFF4F6FB),
-                                          shape: BoxShape.circle,
-                                          border: Border.all(color: widget.themeColor.withValues(alpha: 0.2), width: 1.5),
-                                          image: photoBytes[field.key] != null
-                                              ? DecorationImage(
-                                                  image: MemoryImage(photoBytes[field.key]!),
-                                                  fit: BoxFit.cover,
-                                                )
-                                              : null,
+                        ...photoFields.map(
+                          (field) => Center(
+                            child: Padding(
+                              padding: const EdgeInsets.only(bottom: 18),
+                              child: GestureDetector(
+                                onTap: () async {
+                                  final picker = ImagePicker();
+                                  final picked = await picker.pickImage(
+                                    source: ImageSource.gallery,
+                                    imageQuality: 75,
+                                  );
+                                  if (picked == null) return;
+                                  final bytes = await picked.readAsBytes();
+                                  setSheetState(
+                                    () => photoBytes[field.key] = bytes,
+                                  );
+                                },
+                                child: Stack(
+                                  children: [
+                                    Container(
+                                      width: 88,
+                                      height: 88,
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFF4F6FB),
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: widget.themeColor.withValues(
+                                            alpha: 0.2,
+                                          ),
+                                          width: 1.5,
                                         ),
-                                        child: photoBytes[field.key] == null
-                                            ? Icon(
-                                                Icons.add_a_photo_outlined,
-                                                size: 34,
-                                                color: widget.themeColor.withValues(alpha: 0.6),
+                                        image: photoBytes[field.key] != null
+                                            ? DecorationImage(
+                                                image: MemoryImage(
+                                                  photoBytes[field.key]!,
+                                                ),
+                                                fit: BoxFit.cover,
                                               )
                                             : null,
                                       ),
-                                      Positioned(
-                                        bottom: 0,
-                                        right: 0,
-                                        child: Container(
-                                          padding: const EdgeInsets.all(6),
-                                          decoration: BoxDecoration(
-                                            color: widget.themeColor,
-                                            shape: BoxShape.circle,
-                                            border: Border.all(color: Colors.white, width: 2),
+                                      child: photoBytes[field.key] == null
+                                          ? Icon(
+                                              Icons.add_a_photo_outlined,
+                                              size: 34,
+                                              color: widget.themeColor
+                                                  .withValues(alpha: 0.6),
+                                            )
+                                          : null,
+                                    ),
+                                    Positioned(
+                                      bottom: 0,
+                                      right: 0,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(6),
+                                        decoration: BoxDecoration(
+                                          color: widget.themeColor,
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                            color: Colors.white,
+                                            width: 2,
                                           ),
-                                          child: const Icon(Icons.camera_alt_rounded, size: 14, color: Colors.white),
+                                        ),
+                                        child: const Icon(
+                                          Icons.camera_alt_rounded,
+                                          size: 14,
+                                          color: Colors.white,
                                         ),
                                       ),
-                                    ],
-                                  ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                            )),
+                            ),
+                          ),
+                        ),
 
                         // ==== Field upload file (PDF/Gambar) ====
-                        ...fileFields.map((field) => Padding(
-                              padding: const EdgeInsets.only(bottom: 14),
-                              child: InkWell(
-                                borderRadius: BorderRadius.circular(14),
-                                onTap: () async {
-                                  final result = await FilePicker.platform.pickFiles(
-                                    type: FileType.custom,
-                                    allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
-                                    withData: true,
-                                  );
-                                  if (result == null || result.files.isEmpty) return;
-                                  final picked = result.files.single;
-                                  setSheetState(() => fileData[field.key] = {
-                                        'name': picked.name,
-                                        'bytes': picked.bytes,
-                                      });
-                                },
-                                child: Container(
-                                  width: double.infinity,
-                                  padding: const EdgeInsets.all(14),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFF4F6FB),
-                                    borderRadius: BorderRadius.circular(14),
-                                    border: Border.all(
-                                      color: widget.themeColor.withValues(alpha: 0.25),
-                                      style: BorderStyle.solid,
+                        ...fileFields.map(
+                          (field) => Padding(
+                            padding: const EdgeInsets.only(bottom: 14),
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(14),
+                              onTap: () async {
+                                final result = await FilePicker.platform
+                                    .pickFiles(
+                                      type: FileType.custom,
+                                      allowedExtensions: [
+                                        'pdf',
+                                        'jpg',
+                                        'jpeg',
+                                        'png',
+                                      ],
+                                      withData: true,
+                                    );
+                                if (result == null || result.files.isEmpty) {
+                                  return;
+                                }
+                                final picked = result.files.single;
+                                setSheetState(
+                                  () => fileData[field.key] = {
+                                    'name': picked.name,
+                                    'bytes': picked.bytes,
+                                  },
+                                );
+                              },
+                              child: Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.all(14),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFF4F6FB),
+                                  borderRadius: BorderRadius.circular(14),
+                                  border: Border.all(
+                                    color: widget.themeColor.withValues(
+                                      alpha: 0.25,
                                     ),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        fileData[field.key] != null
-                                            ? Icons.description_rounded
-                                            : Icons.upload_file_rounded,
-                                        color: widget.themeColor,
-                                        size: 22,
-                                      ),
-                                      const SizedBox(width: 12),
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              field.label,
-                                              style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
-                                            ),
-                                            const SizedBox(height: 2),
-                                            Text(
-                                              fileData[field.key]?['name'] as String? ?? 'Belum ada file dipilih',
-                                              style: TextStyle(
-                                                fontSize: 13,
-                                                fontWeight: FontWeight.w600,
-                                                color: fileData[field.key] != null
-                                                    ? const Color(0xFF1E293B)
-                                                    : Colors.grey.shade500,
-                                              ),
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      if (fileData[field.key] != null)
-                                        InkWell(
-                                          onTap: () => setSheetState(() => fileData[field.key] = null),
-                                          borderRadius: BorderRadius.circular(20),
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(4),
-                                            child: Icon(Icons.close_rounded, size: 18, color: Colors.grey.shade500),
-                                          ),
-                                        )
-                                      else
-                                        Text(
-                                          'Pilih',
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w700,
-                                            color: widget.themeColor,
-                                          ),
-                                        ),
-                                    ],
+                                    style: BorderStyle.solid,
                                   ),
                                 ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      fileData[field.key] != null
+                                          ? Icons.description_rounded
+                                          : Icons.upload_file_rounded,
+                                      color: widget.themeColor,
+                                      size: 22,
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            field.label,
+                                            style: TextStyle(
+                                              fontSize: 11,
+                                              color: Colors.grey.shade600,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 2),
+                                          Text(
+                                            fileData[field.key]?['name']
+                                                    as String? ??
+                                                'Belum ada file dipilih',
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w600,
+                                              color: fileData[field.key] != null
+                                                  ? const Color(0xFF1E293B)
+                                                  : Colors.grey.shade500,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    if (fileData[field.key] != null)
+                                      InkWell(
+                                        onTap: () => setSheetState(
+                                          () => fileData[field.key] = null,
+                                        ),
+                                        borderRadius: BorderRadius.circular(20),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(4),
+                                          child: Icon(
+                                            Icons.close_rounded,
+                                            size: 18,
+                                            color: Colors.grey.shade500,
+                                          ),
+                                        ),
+                                      )
+                                    else
+                                      Text(
+                                        'Pilih',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w700,
+                                          color: widget.themeColor,
+                                        ),
+                                      ),
+                                  ],
+                                ),
                               ),
-                            )),
+                            ),
+                          ),
+                        ),
 
                         // ==== Field teks & dropdown ====
                         ...textFields.map((field) {
@@ -450,7 +523,11 @@ class _CrudPageState extends State<CrudPage> {
                                 initialValue: dropdownValues[field.key],
                                 decoration: InputDecoration(
                                   labelText: field.label,
-                                  prefixIcon: Icon(field.icon, size: 20, color: widget.themeColor),
+                                  prefixIcon: Icon(
+                                    field.icon,
+                                    size: 20,
+                                    color: widget.themeColor,
+                                  ),
                                   filled: true,
                                   fillColor: const Color(0xFFF4F6FB),
                                   border: OutlineInputBorder(
@@ -459,15 +536,26 @@ class _CrudPageState extends State<CrudPage> {
                                   ),
                                   focusedBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(14),
-                                    borderSide: BorderSide(color: widget.themeColor, width: 1.4),
+                                    borderSide: BorderSide(
+                                      color: widget.themeColor,
+                                      width: 1.4,
+                                    ),
                                   ),
                                 ),
                                 items: (field.options ?? [])
-                                    .map((opt) => DropdownMenuItem(value: opt, child: Text(opt)))
+                                    .map(
+                                      (opt) => DropdownMenuItem(
+                                        value: opt,
+                                        child: Text(opt),
+                                      ),
+                                    )
                                     .toList(),
-                                onChanged: (value) => setSheetState(() => dropdownValues[field.key] = value),
+                                onChanged: (value) => setSheetState(
+                                  () => dropdownValues[field.key] = value,
+                                ),
                                 validator: (value) {
-                                  if (field.required && (value == null || value.isEmpty)) {
+                                  if (field.required &&
+                                      (value == null || value.isEmpty)) {
                                     return '${field.label} wajib dipilih';
                                   }
                                   return null;
@@ -481,10 +569,17 @@ class _CrudPageState extends State<CrudPage> {
                             child: TextFormField(
                               controller: controllers[field.key],
                               keyboardType: field.keyboardType,
-                              maxLines: field.keyboardType == TextInputType.multiline ? 3 : 1,
+                              maxLines:
+                                  field.keyboardType == TextInputType.multiline
+                                  ? 3
+                                  : 1,
                               decoration: InputDecoration(
                                 labelText: field.label,
-                                prefixIcon: Icon(field.icon, size: 20, color: widget.themeColor),
+                                prefixIcon: Icon(
+                                  field.icon,
+                                  size: 20,
+                                  color: widget.themeColor,
+                                ),
                                 filled: true,
                                 fillColor: const Color(0xFFF4F6FB),
                                 border: OutlineInputBorder(
@@ -493,11 +588,15 @@ class _CrudPageState extends State<CrudPage> {
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(14),
-                                  borderSide: BorderSide(color: widget.themeColor, width: 1.4),
+                                  borderSide: BorderSide(
+                                    color: widget.themeColor,
+                                    width: 1.4,
+                                  ),
                                 ),
                               ),
                               validator: (value) {
-                                if (field.required && (value == null || value.trim().isEmpty)) {
+                                if (field.required &&
+                                    (value == null || value.trim().isEmpty)) {
                                   return '${field.label} wajib diisi';
                                 }
                                 return null;
@@ -523,11 +622,14 @@ class _CrudPageState extends State<CrudPage> {
 
                               final newItem = <String, dynamic>{
                                 for (final field in textFields)
-                                  field.key: field.type == CrudFieldType.dropdown
+                                  field.key:
+                                      field.type == CrudFieldType.dropdown
                                       ? (dropdownValues[field.key] ?? '')
                                       : controllers[field.key]!.text.trim(),
-                                for (final field in photoFields) field.key: photoBytes[field.key],
-                                for (final field in fileFields) field.key: fileData[field.key],
+                                for (final field in photoFields)
+                                  field.key: photoBytes[field.key],
+                                for (final field in fileFields)
+                                  field.key: fileData[field.key],
                               };
 
                               setState(() {
@@ -609,7 +711,11 @@ class _CrudPageState extends State<CrudPage> {
                   borderRadius: BorderRadius.circular(20),
                   child: const Padding(
                     padding: EdgeInsets.all(8),
-                    child: Icon(Icons.arrow_back_rounded, color: Colors.white, size: 22),
+                    child: Icon(
+                      Icons.arrow_back_rounded,
+                      color: Colors.white,
+                      size: 22,
+                    ),
                   ),
                 ),
                 Expanded(
@@ -628,8 +734,12 @@ class _CrudPageState extends State<CrudPage> {
                         ),
                         const SizedBox(height: 3),
                         Text(
-                          widget.subtitle ?? 'Kelola semua data ${widget.title.toLowerCase()}',
-                          style: const TextStyle(color: Colors.white70, fontSize: 12),
+                          widget.subtitle ??
+                              'Kelola semua data ${widget.title.toLowerCase()}',
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 12,
+                          ),
                         ),
                       ],
                     ),
@@ -645,7 +755,9 @@ class _CrudPageState extends State<CrudPage> {
                         child: Padding(
                           padding: const EdgeInsets.all(6),
                           child: Icon(
-                            _showSearch ? Icons.close_rounded : Icons.search_rounded,
+                            _showSearch
+                                ? Icons.close_rounded
+                                : Icons.search_rounded,
                             color: Colors.white,
                             size: 22,
                           ),
@@ -657,7 +769,11 @@ class _CrudPageState extends State<CrudPage> {
                         borderRadius: BorderRadius.circular(20),
                         child: const Padding(
                           padding: EdgeInsets.all(6),
-                          child: Icon(Icons.filter_list_rounded, color: Colors.white, size: 22),
+                          child: Icon(
+                            Icons.filter_list_rounded,
+                            color: Colors.white,
+                            size: 22,
+                          ),
                         ),
                       ),
                     ],
@@ -690,13 +806,21 @@ class _CrudPageState extends State<CrudPage> {
                               child: TextField(
                                 controller: _searchController,
                                 autofocus: true,
-                                onChanged: (value) => setState(() => _searchQuery = value),
+                                onChanged: (value) =>
+                                    setState(() => _searchQuery = value),
                                 decoration: InputDecoration(
-                                  hintText: 'Cari ${widget.title.toLowerCase()}...',
-                                  prefixIcon: Icon(Icons.search_rounded, color: widget.themeColor, size: 20),
+                                  hintText:
+                                      'Cari ${widget.title.toLowerCase()}...',
+                                  prefixIcon: Icon(
+                                    Icons.search_rounded,
+                                    color: widget.themeColor,
+                                    size: 20,
+                                  ),
                                   filled: true,
                                   fillColor: Colors.white,
-                                  contentPadding: const EdgeInsets.symmetric(vertical: 4),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    vertical: 4,
+                                  ),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(14),
                                     borderSide: BorderSide.none,
@@ -710,7 +834,10 @@ class _CrudPageState extends State<CrudPage> {
                     // Kartu ringkasan total data
                     Container(
                       margin: const EdgeInsets.symmetric(horizontal: 20),
-                      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 18,
+                        vertical: 16,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(18),
@@ -731,7 +858,11 @@ class _CrudPageState extends State<CrudPage> {
                               color: widget.themeColor.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            child: Icon(widget.titleIcon, color: widget.themeColor, size: 22),
+                            child: Icon(
+                              widget.titleIcon,
+                              color: widget.themeColor,
+                              size: 22,
+                            ),
                           ),
                           const SizedBox(width: 14),
                           Text(
@@ -747,12 +878,17 @@ class _CrudPageState extends State<CrudPage> {
                             _searchQuery.isEmpty
                                 ? 'Total ${widget.title}'
                                 : 'Hasil pencarian ${widget.title}',
-                            style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.grey.shade600,
+                            ),
                           ),
                           if (_sortAscending != null) ...[
                             const Spacer(),
                             Icon(
-                              _sortAscending! ? Icons.arrow_upward_rounded : Icons.arrow_downward_rounded,
+                              _sortAscending!
+                                  ? Icons.arrow_upward_rounded
+                                  : Icons.arrow_downward_rounded,
                               size: 16,
                               color: widget.themeColor,
                             ),
@@ -771,11 +907,15 @@ class _CrudPageState extends State<CrudPage> {
                                   Container(
                                     padding: const EdgeInsets.all(20),
                                     decoration: BoxDecoration(
-                                      color: widget.themeColor.withValues(alpha: 0.08),
+                                      color: widget.themeColor.withValues(
+                                        alpha: 0.08,
+                                      ),
                                       shape: BoxShape.circle,
                                     ),
                                     child: Icon(
-                                      _searchQuery.isEmpty ? widget.titleIcon : Icons.search_off_rounded,
+                                      _searchQuery.isEmpty
+                                          ? widget.titleIcon
+                                          : Icons.search_off_rounded,
                                       size: 48,
                                       color: widget.themeColor,
                                     ),
@@ -796,7 +936,10 @@ class _CrudPageState extends State<CrudPage> {
                                     _searchQuery.isEmpty
                                         ? 'Tekan tombol + untuk menambahkan'
                                         : 'Coba kata kunci lain',
-                                    style: TextStyle(color: Colors.grey.shade500, fontSize: 12),
+                                    style: TextStyle(
+                                      color: Colors.grey.shade500,
+                                      fontSize: 12,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -807,7 +950,10 @@ class _CrudPageState extends State<CrudPage> {
                               itemBuilder: (context, i) {
                                 final item = filtered[i];
                                 final index = _items.indexOf(item);
-                                final initial = (item[widget.primaryFieldKey] as String? ?? '-').trim();
+                                final initial =
+                                    (item[widget.primaryFieldKey] as String? ??
+                                            '-')
+                                        .trim();
                                 final extraFields = widget.fields.where(
                                   (f) =>
                                       f.key != widget.primaryFieldKey &&
@@ -817,8 +963,12 @@ class _CrudPageState extends State<CrudPage> {
                                 final photoKeys = widget.fields
                                     .where((f) => f.type == CrudFieldType.photo)
                                     .map((f) => f.key);
-                                final photoField = photoKeys.isNotEmpty ? photoKeys.first : null;
-                                final photoBytes = (photoField != null && item[photoField] is Uint8List)
+                                final photoField = photoKeys.isNotEmpty
+                                    ? photoKeys.first
+                                    : null;
+                                final photoBytes =
+                                    (photoField != null &&
+                                        item[photoField] is Uint8List)
                                     ? item[photoField] as Uint8List
                                     : null;
 
@@ -830,22 +980,30 @@ class _CrudPageState extends State<CrudPage> {
                                     borderRadius: BorderRadius.circular(18),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.black.withValues(alpha: 0.05),
+                                        color: Colors.black.withValues(
+                                          alpha: 0.05,
+                                        ),
                                         blurRadius: 12,
                                         offset: const Offset(0, 4),
                                       ),
                                     ],
                                   ),
                                   child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       CircleAvatar(
                                         radius: 22,
-                                        backgroundColor: widget.themeColor.withValues(alpha: 0.12),
-                                        backgroundImage: photoBytes != null ? MemoryImage(photoBytes) : null,
+                                        backgroundColor: widget.themeColor
+                                            .withValues(alpha: 0.12),
+                                        backgroundImage: photoBytes != null
+                                            ? MemoryImage(photoBytes)
+                                            : null,
                                         child: photoBytes == null
                                             ? Text(
-                                                initial.isNotEmpty ? initial[0].toUpperCase() : '-',
+                                                initial.isNotEmpty
+                                                    ? initial[0].toUpperCase()
+                                                    : '-',
                                                 style: TextStyle(
                                                   color: widget.themeColor,
                                                   fontWeight: FontWeight.bold,
@@ -857,10 +1015,13 @@ class _CrudPageState extends State<CrudPage> {
                                       const SizedBox(width: 14),
                                       Expanded(
                                         child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              item[widget.primaryFieldKey] as String? ?? '-',
+                                              item[widget.primaryFieldKey]
+                                                      as String? ??
+                                                  '-',
                                               style: const TextStyle(
                                                 fontWeight: FontWeight.w700,
                                                 fontSize: 14,
@@ -869,8 +1030,13 @@ class _CrudPageState extends State<CrudPage> {
                                             ),
                                             const SizedBox(height: 3),
                                             Text(
-                                              item[widget.secondaryFieldKey] as String? ?? '-',
-                                              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                                              item[widget.secondaryFieldKey]
+                                                      as String? ??
+                                                  '-',
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.grey.shade600,
+                                              ),
                                             ),
                                             if (extraFields.isNotEmpty) ...[
                                               const SizedBox(height: 6),
@@ -879,55 +1045,96 @@ class _CrudPageState extends State<CrudPage> {
                                                 runSpacing: 6,
                                                 children: extraFields.map((f) {
                                                   String val;
-                                                  if (f.type == CrudFieldType.file) {
+                                                  if (f.type ==
+                                                      CrudFieldType.file) {
                                                     final fileVal = item[f.key];
-                                                    if (fileVal is! Map || fileVal['name'] == null) {
+                                                    if (fileVal is! Map ||
+                                                        fileVal['name'] ==
+                                                            null) {
                                                       return const SizedBox.shrink();
                                                     }
-                                                    val = fileVal['name'] as String;
+                                                    val =
+                                                        fileVal['name']
+                                                            as String;
                                                   } else {
-                                                    val = item[f.key] as String? ?? '';
+                                                    val =
+                                                        item[f.key]
+                                                            as String? ??
+                                                        '';
                                                   }
-                                                  if (val.isEmpty) return const SizedBox.shrink();
+                                                  if (val.isEmpty) {
+                                                    return const SizedBox.shrink();
+                                                  }
 
                                                   // Kalau nilainya kata-kata status yang dikenali,
                                                   // tampilkan sebagai pill berwarna, bukan chip biasa.
-                                                  final statusColor = _statusPillColor(val);
+                                                  final statusColor =
+                                                      _statusPillColor(val);
                                                   if (statusColor != null) {
                                                     return Container(
-                                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                                      padding:
+                                                          const EdgeInsets.symmetric(
+                                                            horizontal: 10,
+                                                            vertical: 5,
+                                                          ),
                                                       decoration: BoxDecoration(
-                                                        color: _statusPillBg(val),
-                                                        borderRadius: BorderRadius.circular(20),
+                                                        color: _statusPillBg(
+                                                          val,
+                                                        ),
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              20,
+                                                            ),
                                                       ),
                                                       child: Text(
                                                         val,
                                                         style: TextStyle(
                                                           fontSize: 10.5,
                                                           color: statusColor,
-                                                          fontWeight: FontWeight.w700,
+                                                          fontWeight:
+                                                              FontWeight.w700,
                                                         ),
                                                       ),
                                                     );
                                                   }
 
                                                   return Container(
-                                                    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 9,
+                                                          vertical: 4,
+                                                        ),
                                                     decoration: BoxDecoration(
-                                                      color: widget.themeColor.withValues(alpha: 0.07),
-                                                      borderRadius: BorderRadius.circular(20),
+                                                      color: widget.themeColor
+                                                          .withValues(
+                                                            alpha: 0.07,
+                                                          ),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            20,
+                                                          ),
                                                     ),
                                                     child: Row(
-                                                      mainAxisSize: MainAxisSize.min,
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
                                                       children: [
-                                                        Icon(f.icon, size: 11, color: widget.themeColor),
-                                                        const SizedBox(width: 4),
+                                                        Icon(
+                                                          f.icon,
+                                                          size: 11,
+                                                          color:
+                                                              widget.themeColor,
+                                                        ),
+                                                        const SizedBox(
+                                                          width: 4,
+                                                        ),
                                                         Text(
                                                           val,
                                                           style: TextStyle(
                                                             fontSize: 10,
-                                                            color: widget.themeColor,
-                                                            fontWeight: FontWeight.w600,
+                                                            color: widget
+                                                                .themeColor,
+                                                            fontWeight:
+                                                                FontWeight.w600,
                                                           ),
                                                         ),
                                                       ],
@@ -940,11 +1147,22 @@ class _CrudPageState extends State<CrudPage> {
                                         ),
                                       ),
                                       PopupMenuButton<String>(
-                                        icon: Icon(Icons.more_vert_rounded, color: Colors.grey.shade500, size: 20),
-                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                                        icon: Icon(
+                                          Icons.more_vert_rounded,
+                                          color: Colors.grey.shade500,
+                                          size: 20,
+                                        ),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            14,
+                                          ),
+                                        ),
                                         onSelected: (value) {
                                           if (value == 'edit') {
-                                            _openForm(existing: item, index: index);
+                                            _openForm(
+                                              existing: item,
+                                              index: index,
+                                            );
                                           } else if (value == 'hapus') {
                                             _confirmDelete(index);
                                           }
@@ -954,7 +1172,11 @@ class _CrudPageState extends State<CrudPage> {
                                             value: 'edit',
                                             child: Row(
                                               children: [
-                                                Icon(Icons.edit_outlined, size: 18, color: Color(0xFFD97706)),
+                                                Icon(
+                                                  Icons.edit_outlined,
+                                                  size: 18,
+                                                  color: Color(0xFFD97706),
+                                                ),
                                                 SizedBox(width: 10),
                                                 Text('Edit'),
                                               ],
@@ -964,7 +1186,11 @@ class _CrudPageState extends State<CrudPage> {
                                             value: 'hapus',
                                             child: Row(
                                               children: [
-                                                Icon(Icons.delete_outline, size: 18, color: Colors.red),
+                                                Icon(
+                                                  Icons.delete_outline,
+                                                  size: 18,
+                                                  color: Colors.red,
+                                                ),
                                                 SizedBox(width: 10),
                                                 Text('Hapus'),
                                               ],
